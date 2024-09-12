@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # MAC flag
-export PLATFORM=macosx
+# export PLATFORM=macosx
 
 # Setting up Root environment....
 export ROOTSYS=/usr/local/root

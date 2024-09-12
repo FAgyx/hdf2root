@@ -1,5 +1,5 @@
 basedirs      = src 
-
+HDF2ROOT      = /home/muonuser/gitfolder/hdf2root
 all: build
 
 build: 

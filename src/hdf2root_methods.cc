@@ -61,7 +61,8 @@ char map_h5type_to_root(DataType type) {
     return 'D';
   }
   if(type == PredType::NATIVE_CHAR){
-    return 'c';
+    // return 'c';  does not work in TTree branch, use "b" as unsigned char
+    return 'b';
   }
   if(type == PredType::NATIVE_SCHAR){
     return 'C';
@@ -134,7 +135,7 @@ void GroupToTree(Group *group, TTree *dataTree, TTree *attrTree, Bool_t ver, Boo
       cout << Form(" , type = %c",rType);
     if(rType==0) {
       if(ver)
-	cout << " --> Skipping: Non-supported type! " << endl;
+        cout << " --> Skipping: Non-supported type! " << endl;
       dataNames.pop_back();
       dataSets.pop_back();
       continue;
@@ -152,9 +153,9 @@ void GroupToTree(Group *group, TTree *dataTree, TTree *attrTree, Bool_t ver, Boo
       cout << Form(", dim = %2i (",ndims);
     for(Int_t d=0;d<rank;d++) {
       if(ver)
-	cout << Form("%2i",(UInt_t)dims[iN][d]);
+        cout << Form("%2i",(UInt_t)dims[iN][d]);
       if(d<rank-1) 
-	if(ver) cout << " x " ;
+        if(ver) cout << " x " ;
     }
     if(ver)
       cout << ")";
@@ -197,11 +198,11 @@ void GroupToTree(Group *group, TTree *dataTree, TTree *attrTree, Bool_t ver, Boo
     for(Int_t idim=0;idim<rank;idim++) {
       offset[iN][idim] = 0;
       if(seq && (idim == 0) ) {
-	dims_out[idim] = 1;
-	count[iN][idim] = 1;
+        dims_out[idim] = 1;
+        count[iN][idim] = 1;
       } else {
-	dims_out[idim] = dims[iN][idim];
-	count[iN][idim] = dims[iN][idim];
+        dims_out[idim] = dims[iN][idim];
+        count[iN][idim] = dims[iN][idim];
       }
       n_out *= dims_out[idim];
     }
@@ -211,7 +212,6 @@ void GroupToTree(Group *group, TTree *dataTree, TTree *attrTree, Bool_t ver, Boo
     // ------------------------------------------------
     iN++;
   }  
-   
   // Define the branches
   for(UInt_t i=0;i<iN;i++) {
     dataTree->Branch(dataNames[i].Data(),data_out[i],dataDesc[i].Data());
@@ -225,9 +225,26 @@ void GroupToTree(Group *group, TTree *dataTree, TTree *attrTree, Bool_t ver, Boo
       DataSpace dataSpace = dataSets[i]->getSpace();
       dataSpace.selectHyperslab(H5S_SELECT_SET,count[i],offset[i]);
       const DataType type = dataSets[i]->getDataType();
+
+      /*
+       * Read data from hyperslab in the file into the hyperslab in
+       * memory and display the data.
+       */
+
       dataSets[i]->read(data_out[i],type,*(mem_out[i]),dataSpace);
+      // print data_out[0]
+      cout<<"display dataset content"<<endl;
+      for (int data_j = 0; data_j < dims[0][0]; data_j++){
+        for (int data_i = 0; data_i < dims[0][1]; data_i++){
+          unsigned int tmp = *(data_out.at(0)+data_j*dims[0][1]+data_i);
+          cout << tmp << " ";
+        }
+        cout << endl;
+      }
+
+
       if(seq) // increase first dimension offset
-	offset[i][0] += count[i][0];
+        offset[i][0] += count[i][0];
     }
     dataTree->Fill();
   }
@@ -255,19 +272,19 @@ void GroupToTree(Group *group, TTree *dataTree, TTree *attrTree, Bool_t ver, Boo
     char rClass = map_h5class_to_root(type.getClass());
     if(rType==0) {
       if(rClass!=0) {
-	rType = rClass;
-	if(ver)
-	  cout << Form(" , class = %c",rClass);
-      }	else {
-	if(ver)
-	  cout << " --> Skipping: Non-supported type! " << endl;
-	attrNames.pop_back();
-	attr.pop_back();
-	continue;
+        rType = rClass;
+        if(ver)
+          cout << Form(" , class = %c",rClass);
+      } else {
+        if(ver)
+          cout << " --> Skipping: Non-supported type! " << endl;
+        attrNames.pop_back();
+        attr.pop_back();
+        continue;
       }
     } else {
       if(ver)
-	cout << Form(" , type  = %c",rType);
+        cout << Form(" , type  = %c",rType);
     }
     
     // rank gives the dimensionality of the object
@@ -282,7 +299,7 @@ void GroupToTree(Group *group, TTree *dataTree, TTree *attrTree, Bool_t ver, Boo
       cout << Form(", dim = %2i (",ndims);
     for(Int_t d=0;d<rank;d++) {
       if(ver)
-	cout << Form("%2i",(UInt_t)attrDims[iattN][d]);
+        cout << Form("%2i",(UInt_t)attrDims[iattN][d]);
       if(d<rank-1) cout << " x " ;
     }
     if(ver)
@@ -328,73 +345,73 @@ void GroupToTree(Group *group, TTree *dataTree, TTree *attrTree, Bool_t ver, Boo
       attName += attr[iattN]->getName();
       attrNames.push_back(attName);
       if(ver)
-	cout << Form(" Attibute %2i : %18s",iattN,attrNames[iattN].Data());
+        cout << Form(" Attibute %2i : %18s",iattN,attrNames[iattN].Data());
       DataSpace attrSpace = attr[iattN]->getSpace();
       
       const DataType type = attr[iattN]->getDataType();
       char rType = map_h5type_to_root(type);
       char rClass = map_h5class_to_root(type.getClass());
       if(rType==0) {
-	if(rClass!=0) {
-	  rType = rClass;
-	  if(ver)
-	    cout << Form(" , class = %c",rClass);
-	} else {
-	  if(ver)
-	    cout << " --> Skipping: Non-supported type! " << endl;
-	  attrNames.pop_back();
-	  attr.pop_back();
-	  continue;
-	}
+        if(rClass!=0) {
+          rType = rClass;
+          if(ver)
+            cout << Form(" , class = %c",rClass);
+        } else {
+          if(ver)
+            cout << " --> Skipping: Non-supported type! " << endl;
+          attrNames.pop_back();
+          attr.pop_back();
+          continue;
+        }
       } else {
-	if(ver)
-	  cout << Form(" , type  = %c",rType);
+        if(ver)
+          cout << Form(" , type  = %c",rType);
       }
       
       // rank gives the dimensionality of the object
       Int_t rank = attrSpace.getSimpleExtentNdims();
       if(ver)
-	cout << Form(" , rank = %1i",rank);
+        cout << Form(" , rank = %1i",rank);
       
       // attrDims will store the number of elements in each dimension
       attrDims.push_back(new hsize_t[rank]);
       int ndims = attrSpace.getSimpleExtentDims(attrDims[iattN],NULL);
       if(ver)
-	cout << Form(", dim = %2i (",ndims);
+        cout << Form(", dim = %2i (",ndims);
       for(Int_t d=0;d<rank;d++) {
-	if(ver)
-	  cout << Form("%2i",(UInt_t)attrDims[iattN][d]);
-	if(d<rank-1) 
-	  if(ver) cout << " x " ;
+        if(ver)
+          cout << Form("%2i",(UInt_t)attrDims[iattN][d]);
+        if(d<rank-1) 
+          if(ver) cout << " x " ;
       }
       if(ver)
-	cout << ")";
+        cout << ")";
       
       size_t type_size = type.getSize();
       if(ver)
-	cout << ", size = " << type_size;
+        cout << ", size = " << type_size;
       
       attrNames[iattN].ReplaceAll("|","");
       attrNames[iattN].ReplaceAll(" ","_");
       TString desc = attrNames[iattN].Data();
       for(Int_t d=0;d<rank;d++) {
-	char dim[64] = "\0";
-	if(rank==1 && attrDims[iattN][d]==1) break;
-	sprintf(dim,"[%i]",(Int_t)attrDims[iattN][d]);
-	desc += dim;
+        char dim[64] = "\0";
+        if(rank==1 && attrDims[iattN][d]==1) break;
+        sprintf(dim,"[%i]",(Int_t)attrDims[iattN][d]);
+        desc += dim;
       }
       desc += "/";
       desc += rType;
       attrDesc.push_back(desc);
       
       if(ver)
-	cout << Form(", branch = %8s",attrDesc[iattN].Data()) << endl;
+        cout << Form(", branch = %8s",attrDesc[iattN].Data()) << endl;
       
       // Defines the output buffer
       // ------------------------------------------------
       Int_t n_out = 1;
       for(Int_t idim=0;idim<rank;idim++)
-	n_out *= attrDims[iattN][idim];
+        n_out *= attrDims[iattN][idim];
             
       attr_data_out.push_back(new char[type_size*n_out]);
       // ------------------------------------------------ 
@@ -455,19 +472,19 @@ void GroupToTree(Group *group, TTree *dataTree, Bool_t seq, Bool_t ver) {
     char rClass = map_h5class_to_root(type.getClass());
     if(rType==0) {
       if(rClass!=0) {
-	rType = rClass;
-	if(ver)
-	  cout << Form(" , class = %c",rClass);
-      }	else {
-	if(ver)
-	  cout << " --> Skipping: Non-supported type! " << endl;
-	dataNames.pop_back();
-	dataSets.pop_back();
-	continue;
+        rType = rClass;
+        if(ver)
+          cout << Form(" , class = %c",rClass);
+      } else {
+        if(ver)
+          cout << " --> Skipping: Non-supported type! " << endl;
+        dataNames.pop_back();
+        dataSets.pop_back();
+        continue;
       }
     } else {
       if(ver)
-	cout << Form(" , type  = %c",rType);
+        cout << Form(" , type  = %c",rType);
     }
     
     // rank gives the dimensionality of the object
@@ -482,9 +499,9 @@ void GroupToTree(Group *group, TTree *dataTree, Bool_t seq, Bool_t ver) {
       cout << Form(", dim = %2i (",ndims);
     for(Int_t d=0;d<rank;d++) {
       if(ver)
-	cout << Form("%2i",(UInt_t)dims[iN][d]);
+        cout << Form("%2i",(UInt_t)dims[iN][d]);
       if(d<rank-1) 
-	if(ver) cout << " x " ;
+        if(ver) cout << " x " ;
     }
     if(ver)
       cout << ")";
@@ -527,17 +544,17 @@ void GroupToTree(Group *group, TTree *dataTree, Bool_t seq, Bool_t ver) {
     for(Int_t idim=0;idim<rank;idim++) {
       offset[iN][idim] = 0;
       if(seq && (idim == 0) ) {
-	dims_out[idim] = 1;
-	count[iN][idim] = 1;
+        dims_out[idim] = 1;
+        count[iN][idim] = 1;
       } else {
-	dims_out[idim] = dims[iN][idim];
-	count[iN][idim] = dims[iN][idim];
+        dims_out[idim] = dims[iN][idim];
+        count[iN][idim] = dims[iN][idim];
       }
       n_out *= dims_out[idim];
     }
 
-    data_out.push_back(new char[type_size*n_out]);
-    mem_out.push_back(new DataSpace(rank,dims_out));
+    data_out.push_back(new char[type_size*n_out]);  //data_out holds the data
+    mem_out.push_back(new DataSpace(rank,dims_out));  //mem_out specifies the memory space
     // ------------------------------------------------
     iN++;
   }  
@@ -553,12 +570,29 @@ void GroupToTree(Group *group, TTree *dataTree, Bool_t seq, Bool_t ver) {
   for(UInt_t k=0;k<Nseq;k++) {
     for(UInt_t i=0;i<iN;i++) {
       DataSpace dataSpace = dataSets[i]->getSpace();
+
+      // Define memory hyperslab
       dataSpace.selectHyperslab(H5S_SELECT_SET,count[i],offset[i]);
       DataType type = dataSets[i]->getDataType();
       //char rType = map_h5type_to_root(&type);
+
+      /*
+       * Read data from hyperslab in the file into the hyperslab in
+       * memory and display the data.
+       */
+
       dataSets[i]->read(data_out[i],type,*(mem_out[i]),dataSpace);
+      // print data_out[0]
+      cout<<"display dataset content"<<endl;
+      for (int data_j = 0; data_j < dims[0][0]; data_j++){
+        for (int data_i = 0; data_i < dims[0][1]; data_i++){
+          char tmp = *(data_out.at(0)+data_j*dims[0][1]+data_i);
+          cout << tmp << " ";
+        }
+        cout << endl;
+      }
       if(seq) // increase first dimension offset
-	offset[i][0] += count[i][0];
+        offset[i][0] += count[i][0];
     }
     dataTree->Fill();
   }

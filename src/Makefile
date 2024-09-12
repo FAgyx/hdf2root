@@ -1,3 +1,4 @@
+HDF2ROOT = /home/muonuser/gitfolder/hdf2root
 include $(HDF2ROOT)/config/Makefile.common
 
 OBJS  = hdf2root_methods

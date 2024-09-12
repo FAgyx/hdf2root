@@ -93,20 +93,20 @@ int main (int argc,char *argv[]) {
   for(UInt_t ig=0;ig<gIdx;ig++) {
     for(UInt_t i=0;i<groups[ig]->getNumObjs();i++) {
       if(H5G_GROUP == groups[ig]->getObjTypeByIdx(i)) {
-	groupNames.push_back(groups[ig]->getObjnameByIdx(i));
-	groups.push_back(new Group(groups[ig]->openGroup(groupNames[gIdx])));
-	// Creates a TTree to store the DataSets in the group
-	char tName[24];
-	char tDesc[128];
-	strcpy(tName,groupNames[gIdx].Data());
-	sprintf(tDesc,"DataSets in %s group",groupNames[gIdx].Data());
-	dataTrees.push_back(new TTree(tName,tDesc));
-	// Creates a TTree to store the Attributes of the group
-	strcpy(tName,groupNames[gIdx].Data());
-	strcat(tName,"_att");
-	sprintf(tDesc,"Attributes of %s group",groupNames[gIdx].Data());
-	attrTrees.push_back(new TTree(tName,tDesc));
-	gIdx++;
+        groupNames.push_back(groups[ig]->getObjnameByIdx(i));
+        groups.push_back(new Group(groups[ig]->openGroup(groupNames[gIdx])));
+        // Creates a TTree to store the DataSets in the group
+        char tName[24];
+        char tDesc[128];
+        strcpy(tName,groupNames[gIdx].Data());
+        sprintf(tDesc,"DataSets in %s group",groupNames[gIdx].Data());
+        dataTrees.push_back(new TTree(tName,tDesc));
+        // Creates a TTree to store the Attributes of the group
+        strcpy(tName,groupNames[gIdx].Data());
+        strcat(tName,"_att");
+        sprintf(tDesc,"Attributes of %s group",groupNames[gIdx].Data());
+        attrTrees.push_back(new TTree(tName,tDesc));
+        gIdx++;
       }
     }
   }
