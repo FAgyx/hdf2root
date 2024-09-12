@@ -5,10 +5,19 @@
 #ifndef HDF2ROOT
 #define HDF2ROOT
 
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include <TString.h>
+#include <TFile.h>
 #include "H5Cpp.h"
 #include <TTree.h>
 
+
+using namespace std;
 using namespace H5;
+
 
 void help();
 

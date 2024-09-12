@@ -2,20 +2,7 @@
 //  July 27, 2011
 //  Revised: Mar 26, 2014
 
-#include <iostream>
-#include <string>
-#include <vector>
-
-#include "H5Cpp.h"
-
-#include "hdf2root.hh"
-
-#include <TString.h>
-#include <TFile.h>
-
-using namespace std;
-using namespace H5;
-
+#include "inc/hdf2root.hh"
 
 void help() {
   printf("\n Usage: hdf2root [--help, -h] [--seq] [--ver] <inFile.h5> <outFile.root(=inFile.root)>\n");

@@ -8,7 +8,7 @@
 
 #include "H5Cpp.h"
 
-#include "hdf2root.hh"
+#include "inc/hdf2root.hh"
 
 #include <TString.h>
 #include <TFile.h>
