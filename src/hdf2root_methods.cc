@@ -233,14 +233,14 @@ void GroupToTree(Group *group, TTree *dataTree, TTree *attrTree, Bool_t ver, Boo
 
       dataSets[i]->read(data_out[i],type,*(mem_out[i]),dataSpace);
       // print data_out[0]
-      cout<<"display dataset content"<<endl;
-      for (int data_j = 0; data_j < dims[0][0]; data_j++){
-        for (int data_i = 0; data_i < dims[0][1]; data_i++){
-          unsigned int tmp = *(data_out.at(0)+data_j*dims[0][1]+data_i);
-          cout << tmp << " ";
-        }
-        cout << endl;
-      }
+      // cout<<"display dataset content"<<endl;
+      // for (int data_j = 0; data_j < dims[0][0]; data_j++){
+      //   for (int data_i = 0; data_i < dims[0][1]; data_i++){
+      //     unsigned int tmp = *(data_out.at(0)+data_j*dims[0][1]+data_i);
+      //     cout << tmp << " ";
+      //   }
+      //   cout << endl;
+      // }
 
 
       if(seq) // increase first dimension offset

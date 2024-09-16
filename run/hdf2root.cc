@@ -100,12 +100,12 @@ int main (int argc,char *argv[]) {
   
   // Here the DataSets and the Attributes are
   // read from the current group and stored in TTree's
+  cout<<"DataTree size="<<dataTrees.size()<<endl;
   for(UInt_t i=0;i<dataTrees.size();i++) {
     if(VER)
       cout << "Group " << i << " : " << groupNames[i] << endl;
     GroupToTree(groups[i],dataTrees[i],attrTrees[i],VER,SEQ);
   }
-  
   // Writting TTrees in output file
   TFile * rfile = new TFile(outFilename,"RECREATE","Dump of HDF5 file");
   for(UInt_t i=0;i<dataTrees.size();i++) 

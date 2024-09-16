@@ -30,6 +30,5 @@ char map_h5type_to_root(DataType *type);
 void GroupToTree(Group *group, TTree *dataTree, TTree *attrTree, Bool_t ver=kFALSE, Bool_t seq=kFALSE);
 
 void GroupToTree(Group *group, TTree *dataTree, Bool_t seq=kFALSE, Bool_t ver=kFALSE);
-
 #endif
 
