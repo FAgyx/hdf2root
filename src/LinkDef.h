@@ -7,8 +7,11 @@
 
 // #pragma link C++ namespace MuonReco;
 
-#include "inc/hdf2root.hh"
-#include "inc/rootdraw.hh"
+#include "inc/hdf2root.h"
+#include "inc/rootdraw.h"
+#include "inc/WaveAttr.h"
+#include "inc/WaveData.h"
+
 // #pragma link C++ class MuonReco::RecoObject+;
 
 // #include "MuonReco/Cluster.h"

@@ -27,8 +27,8 @@ include(${ROOT_USE_FILE})
 # Define which files are headers and source
 #
 
-file(GLOB CalVision_HEADERS ${PROJECT_SOURCE_DIR}/inc/*.hh)
-file(GLOB CalVision_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cc)
+file(GLOB CalVision_HEADERS ${PROJECT_SOURCE_DIR}/inc/*.h)
+file(GLOB CalVision_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 
 #
@@ -50,10 +50,10 @@ add_library(calvision SHARED ${CalVision_SOURCES} G__calvision_CINT.cxx)
 # Create executables for muon reconstruction
 #
 
-add_executable(hdf2root run/hdf2root.cc)
+add_executable(hdf2root run/hdf2root.cpp)
 target_link_libraries(hdf2root calvision ${ROOT_LIBRARIES} ${HDF5_LIBRARIES})
 
-add_executable(rootdraw run/rootdraw.cc)
+add_executable(rootdraw run/rootdraw.cpp)
 target_link_libraries(rootdraw calvision ${ROOT_LIBRARIES} ${HDF5_LIBRARIES})
 
 

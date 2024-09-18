@@ -25,6 +25,9 @@
 #include "AtlasStyle/AtlasStyle.h"
 #include "AtlasStyle/AtlasStyle.C"
 
+#include "inc/WaveAttr.h"
+#include "inc/WaveData.h"
+
 
 using namespace std;
 

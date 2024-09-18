@@ -2,7 +2,7 @@
 //  July 27, 2011
 //  Revised: Mar 26, 2014
 
-#include "inc/hdf2root.hh"
+#include "inc/hdf2root.h"
 
 void help() {
   printf("\n Usage: hdf2root [--help, -h] [--seq] [--ver] <inFile.h5> <outFile.root(=inFile.root)>\n");
