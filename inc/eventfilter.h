@@ -2,8 +2,8 @@
 //  July 27, 2011
 //  Revised: Mar 26, 2014
 
-#ifndef ROOTDRAW
-#define ROOTDRAW
+#ifndef EVENTFILTER
+#define EVENTFILTER
 
 
 
@@ -23,7 +23,8 @@
 #include "TF1.h"
 #include "TMath.h"
 
-
+#include "AtlasStyle/AtlasStyle.h"
+#include "AtlasStyle/AtlasStyle.C"
 
 #include "inc/WaveAttr.h"
 #include "inc/WaveData.h"
@@ -33,7 +34,6 @@ using namespace std;
 
 
 void rootdraw_help();
-int main (int argc,char *argv[]);
 
 
 #endif

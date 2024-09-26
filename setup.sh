@@ -1,6 +1,3 @@
-export PATH=$(pwd)/build:$PATH
-
-
 # set up ROOT
 
 export ALRB_rootVersion=6.30.02-x86_64-el9-gcc13-opt
@@ -12,6 +9,7 @@ source ${ATLAS_LOCAL_ROOT_BASE}/packageSetups/atlasLocalROOTSetup.sh --rootVersi
 
 # set up CMAKE
 lsetup "views LCG_104d_ATLAS_20 x86_64-el9-gcc13-opt"
-lsetup cmake
-~                  
+lsetup cmake      
+
+export PATH=$(pwd)/build:$PATH 
 

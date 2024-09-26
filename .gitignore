@@ -1,4 +1,6 @@
-raw/
-build/
+raw/*
+build/*
+output/*
 *.root
 *.png
+condor/out/*

@@ -56,6 +56,9 @@ target_link_libraries(hdf2root calvision ${ROOT_LIBRARIES} ${HDF5_LIBRARIES})
 add_executable(rootdraw run/rootdraw.cpp)
 target_link_libraries(rootdraw calvision ${ROOT_LIBRARIES} ${HDF5_LIBRARIES})
 
+add_executable(doFFT run/doFFT.cpp)
+target_link_libraries(doFFT calvision ${ROOT_LIBRARIES} ${HDF5_LIBRARIES})
+
 
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-shadow")
 

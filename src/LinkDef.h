@@ -11,6 +11,9 @@
 #include "inc/rootdraw.h"
 #include "inc/WaveAttr.h"
 #include "inc/WaveData.h"
+#include "inc/WaveFFT.h"
+#include "inc/WaveFilter.h"
+#include "AtlasStyle/AtlasStyle.h"
 
 // #pragma link C++ class MuonReco::RecoObject+;
 

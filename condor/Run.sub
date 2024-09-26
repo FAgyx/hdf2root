@@ -1,0 +1,8 @@
+executable=/atlas/data19/gyuxiang/gitfolder/calvision/hdf2root/condor/run_bash.sh
++JobFlavour = "testmatch"
+
+arguments="raw/straw_tube2_1700V_nofilter_Sep_13_2024_18_00_02.root 10000000"
+output   =/atlas/data19/gyuxiang/gitfolder/calvision/hdf2root/condor/out/run1.out
+error    =/atlas/data19/gyuxiang/gitfolder/calvision/hdf2root/condor/out/run1.err
+log      =/atlas/data19/gyuxiang/gitfolder/calvision/hdf2root/condor/out/run1.log
+queue

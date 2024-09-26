@@ -2,6 +2,8 @@
 #define WAVEDATA
 
 #include <iostream>
+#include <chrono>
+#include <ctime> 
 
 #include "TTree.h"
 #include "TH1.h"
@@ -12,21 +14,31 @@
 #include "TF1.h"
 #include "TMath.h"
 
+
+
 #include "inc/WaveAttr.h"
 
+#include "stdlib.h"
+#include "stdio.h"
+#include "string.h"
 
+
+int parseLine(char* line);
+int getValueVM(); //Note: this value is in KB!
+int getValuePM();
 
 
 class WaveData {
 public:
-  WaveData(TTree* tree, WaveAttr* waveattr, std::vector<int> chnls);
-  void GetRawData(long entries);
-  void Lowpass_FFT();
+  WaveData(TTree* tree, WaveAttr* waveattr, std::vector<int> chnls, TString outFileFolder);
+  void GetRawData(long entries, long draw_entries);
+  void Lowpass_FFT(long draw_entries, int lowpass_freq);
   std::vector<TBranch*> pb_data;
   std::vector<TBranch*> pb_TH1s;
   std::vector<TBranch*> pb_TH1s_back;
   WaveAttr *attr;
-  TTree* waveTH1_tree = new TTree("waveTH1_tree","waveTH1_tree");
+  TString outFolder;
+  TTree* waveTH1_tree;
   std::vector<TH1D*> p_waveform_TH1s;
   std::vector<TH1D*> p_waveform_TH1s_back;
   

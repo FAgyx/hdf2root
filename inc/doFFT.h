@@ -2,8 +2,8 @@
 //  July 27, 2011
 //  Revised: Mar 26, 2014
 
-#ifndef ROOTDRAW
-#define ROOTDRAW
+#ifndef DOFFT
+#define DOFFT
 
 
 
@@ -27,12 +27,13 @@
 
 #include "inc/WaveAttr.h"
 #include "inc/WaveData.h"
+#include "inc/WaveFFT.h"
 
 
 using namespace std;
 
 
-void rootdraw_help();
+void doFFT_help();
 int main (int argc,char *argv[]);
 
 
