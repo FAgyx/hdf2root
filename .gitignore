@@ -4,3 +4,4 @@ output/*
 *.root
 *.png
 condor/out/*
+setup1.sh

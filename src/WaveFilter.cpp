@@ -18,15 +18,13 @@ WaveFilter::WaveFilter(TFile* p_input_rootfile, std::vector<int> chnls, TString 
 
 
 void WaveFilter::filter_by_amplitude(long entries, long draw_entries, int filter_chnl,
-  std::vector<double> chnl_offsets, double filter_amp, double base_line){
+  double filter_amp, double base_line){
   int chnl_number = pb_TH1s_in.size();
   if(entries==0||entries>pb_TH1s_in.at(0)->GetEntries())  
     entries=pb_TH1s_in.at(0)->GetEntries(); 
   long event_print = 100;
   long draw_count = 0;
   TH1D* p_waveform;
-  TH1D* p_waveform_offset;
-  std::vector<TH1D*> p_wave_offset;
   for (int i = 0; i < chnl_number; ++i){
     p_waveform = (TH1D*)p_wave_template->Clone();
     p_wave.push_back(p_waveform); 
@@ -34,13 +32,7 @@ void WaveFilter::filter_by_amplitude(long entries, long draw_entries, int filter
 
     //push_back must be in a seperate for loop, otherwise segment fault
   }
-  for (int i = 0; i < chnl_number; ++i){
-    p_waveform_offset = (TH1D*)p_wave_template->Clone();
-    for (int j = 0; j <=p_waveform_offset->GetXaxis()->GetNbins(); ++j){
-      p_waveform_offset->SetBinContent(j, chnl_offsets.at(i));
-    }
-    p_wave_offset.push_back(p_waveform_offset);
-  }
+
 
   for (int i = 0; i < chnl_number; ++i){    
     pb_TH1s_in.at(i)->SetAddress(&(p_wave.at(i)));//link p_waveform to input branch
@@ -64,16 +56,14 @@ void WaveFilter::filter_by_amplitude(long entries, long draw_entries, int filter
     }
     wave_tree_in->GetEntry(j); 
 
-    if((p_wave.at(filter_chnl)->GetMaximum()-p_wave.at(filter_chnl)->GetMinimum())>filter_amp
-      && p_wave.at(filter_chnl)->GetMaximum()<base_line
-      ||(p_wave.at(filter_chnl)->GetMaximum()-p_wave.at(filter_chnl)->GetMinimum())>0.07){
+    if((p_wave.at(filter_chnl)->GetMaximum())>filter_amp
+      && p_wave.at(filter_chnl)->GetMinimum()>base_line
+      ||(p_wave.at(filter_chnl)->GetMaximum()>0.1)){
       //require 40 mV amplitude
       for (int i = 0; i < chnl_number; ++i){    
-        p_wave.at(i)->Add(p_wave_offset.at(i));
-        p_wave.at(i)->Scale(-1);
         if(draw_count<draw_entries){
           p_wave.at(i)->Draw("HIST");   
-          p_output_canvas->SaveAs((outFolder+"/event_select/event"+std::to_string(j)+"_"+
+          p_output_canvas->SaveAs((outFolder+"/event"+std::to_string(j)+"_"+
             pb_TH1s_in.at(i)->GetFullName().ReplaceAll("waveTH1_","")+".png"));
         }
       }  

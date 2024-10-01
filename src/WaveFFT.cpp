@@ -17,10 +17,25 @@ WaveFFT::WaveFFT(TFile* p_input_rootfile, std::vector<int> chnls, TString outFil
 }
 
 
-void WaveFFT::Lowpass_FFT(long entries, long draw_entries, int lowpass_freq){
+void WaveFFT::Lowpass_FFT(long entries, long draw_entries, int lowpass_freq,
+  std::vector<double> chnl_offsets){
+
+  int chnl_number = pb_TH1s.size();
+
   TH1D* p_waveform = (TH1D*)p_wave_template->Clone();
   TH1D* p_waveform_back = (TH1D*)p_wave_template->Clone();
-  int n_points = p_waveform->GetNbinsX();
+  int n_points = p_waveform->GetXaxis()->GetNbins();
+
+  TH1D* p_waveform_offset;
+  std::vector<TH1D*> p_wave_offset;
+
+  for (int i = 0; i < chnl_number; ++i){ //set offset for each channel
+    p_waveform_offset = (TH1D*)p_wave_template->Clone();
+    for (int j = 0; j <=p_waveform_offset->GetXaxis()->GetNbins(); ++j){
+      p_waveform_offset->SetBinContent(j, chnl_offsets.at(i));
+    }
+    p_wave_offset.push_back(p_waveform_offset);
+  }
 
   TH1 *hm = nullptr;
   TVirtualFFT::SetTransform(nullptr);
@@ -48,7 +63,7 @@ void WaveFFT::Lowpass_FFT(long entries, long draw_entries, int lowpass_freq){
           std::chrono::system_clock::now());
         auto gmt_time = gmtime(&current_time_date);
         auto timestamp = std::put_time(gmt_time, "%Y-%m-%d %H:%M:%S");
-        std::cout << "GetRawData "<<p_branch->GetFullName()<<" event " << j <<" at "<<
+        std::cout << "Do FFT "<<p_branch->GetFullName()<<" event " << j <<" at "<<
           timestamp<<", VM="<<getValueVM()<<" MB, PM="<<getValuePM()<<" MB"<<std::endl;
         if (TMath::Floor(TMath::Log10(j)) > TMath::Floor(TMath::Log10(event_print))) event_print*=10;
       }
@@ -84,7 +99,10 @@ void WaveFFT::Lowpass_FFT(long entries, long draw_entries, int lowpass_freq){
       fft_back->Transform();
 
       TH1::TransformHisto(fft_back,p_waveform_back,"Re");
-      p_waveform_back->Scale(1.0/n_points);
+      p_waveform_back->Scale(-1.0/n_points);
+
+      p_waveform_back->Add(p_wave_offset.at(vindex));
+
 
       if(j<draw_entries){
         p_waveform_back->Draw("HIST");

@@ -20,7 +20,8 @@ int main (int argc,char *argv[]) {
   TString outRootFilename = "\0";
 
   long process_entry=0;  //0 means all data
-  double vth_upper_base = 0;
+  long draw_entry=100;   //0 means no draw
+  double vth_base = 0;
 
 
   for(int l=1;l<argc;l++){
@@ -34,7 +35,9 @@ int main (int argc,char *argv[]) {
     } else if(arg.Contains("-e")) {
       process_entry = std::stol(argv[l+1]);
     } else if(arg.Contains("-b")) {
-      vth_upper_base = std::stod(argv[l+1]);
+      vth_base = std::stod(argv[l+1]);
+    } else if(arg.Contains("-d")) {
+      draw_entry = std::stod(argv[l+1]);
     }
   }
   
@@ -58,6 +61,8 @@ int main (int argc,char *argv[]) {
   cout << "Processing " << inFilename.Data() << " ... " << endl;
   outRootFilename = outFileFolder+"/waveform_sel.root";
 
+  outFileFolder = outFileFolder + "/event_select";
+
   TFile *p_input_rootfile = TFile::Open(inFilename.Data());
 
   p_input_rootfile->ls();  
@@ -66,15 +71,9 @@ int main (int argc,char *argv[]) {
   chnls.push_back(2);
   chnls.push_back(3);
 
-  double chnl2_baseline = 0.121;  //Volt
-  double chnl3_baseline = 0.0;   //volt
-  std::vector<double> chnl_offsets;
-  chnl_offsets.push_back(chnl2_baseline);
-  chnl_offsets.push_back(chnl3_baseline);
+  
 
-  long draw_entry=100;
-
-  vth_upper_base = -0.105;
+  // vth_base = -0.105;
 
   TFile *p_output_rootfile = new TFile(outRootFilename.Data(), "RECREATE");
   if(p_output_rootfile==NULL) return 0;
@@ -85,7 +84,9 @@ int main (int argc,char *argv[]) {
 
   std::cout<<"Event filter started"<<std::endl;
 
-  wavefilter.filter_by_amplitude(process_entry,draw_entry,0, chnl_offsets,0.04,vth_upper_base);
+  std::cout<<"Channel"<<chnls.at(0)<<" baseline rejection at "<<vth_base<<" V"<<std::endl;
+
+  wavefilter.filter_by_amplitude(process_entry,draw_entry,0,0.04,vth_base);
   p_output_rootfile->Write();
 
   std::cout<<"Event filter finished successfully"<<std::endl;

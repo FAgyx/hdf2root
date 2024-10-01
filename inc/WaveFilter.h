@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <chrono>
+#include <iomanip>
 #include <ctime> 
 
 #include "TTree.h"
@@ -20,7 +21,7 @@ class WaveFilter {
 public:
   WaveFilter(TFile* p_input_rootfile, std::vector<int> chnls, TString outFileFolder);
   void filter_by_amplitude(long entries, long draw_entries, int filter_chnl, 
-  	std::vector<double> chnl_offsets, double filter_amp, double base_line);
+  	double filter_amp, double base_line);
   std::vector<TBranch*> pb_TH1s_in;
   std::vector<TBranch*> pb_TH1s_out;
   std::vector<TH1D*> p_wave;
