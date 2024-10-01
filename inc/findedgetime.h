@@ -2,8 +2,8 @@
 //  July 27, 2011
 //  Revised: Mar 26, 2014
 
-#ifndef EVENTFILTER
-#define EVENTFILTER
+#ifndef FINDEDGETIME
+#define FINDEDGETIME
 
 
 
@@ -23,7 +23,7 @@
 #include "TF1.h"
 #include "TMath.h"
 
-#include "inc/WaveFilter.h"
+#include "inc/WaveEdgeTime.h"
 
 
 
@@ -31,7 +31,7 @@ using namespace std;
 
 
 
-void eventfilter_help();
+void findedgetime_help();
 int main (int argc,char *argv[]);
 
 #endif

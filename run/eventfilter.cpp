@@ -1,7 +1,9 @@
 #include "inc/eventfilter.h"
+#include "AtlasStyle/AtlasStyle.h"
+#include "AtlasStyle/AtlasStyle.C"
 
-void rootdraw_help() {
-  printf("\n Usage: rootdraw [--help, -h] <inFile.dat> \n");
+void eventfilter_help() {
+  printf("\n Usage: eventfilter [--help, -h] <inFile.root> [-e] <entries>\n");
   printf("\n  %15s  %s ","--help, -h","Shows this message.");
   printf("\n\n");
 }
@@ -9,83 +11,86 @@ void rootdraw_help() {
 int main (int argc,char *argv[]) {
   SetAtlasStyle();
   if(argc<=1) {
-    rootdraw_help();
+    eventfilter_help();
     return 0;
   }
 
   TString inFilename = "\0";
-  TString outFilename = "\0";
+  TString outFileFolder = "\0";
+  TString outRootFilename = "\0";
 
-  long process_etry=0;  //0 means all data
+  long process_entry=0;  //0 means all data
+  double vth_upper_base = 0;
 
 
   for(int l=1;l<argc;l++){
     TString arg = argv[l];
    
     if(arg.Contains("--help") || arg.Contains("-h")) {
-      rootdraw_help();
+      eventfilter_help();
       return 0;
-    } else if(arg.EndsWith(".dat")) {
+    } else if(arg.EndsWith(".root")) {
       inFilename = arg;
-      inFilename.ReplaceAll(".dat","");
-      inFilename.ReplaceAll("raw/","output/");
-      inFilename = inFilename + "/waveform_fft.root"
+    } else if(arg.Contains("-e")) {
+      process_entry = std::stol(argv[l+1]);
+    } else if(arg.Contains("-b")) {
+      vth_upper_base = std::stod(argv[l+1]);
     }
   }
-  
-  cout << "Processing " << inFilename.Data() << " ... " << endl;
   
   if(inFilename=="\0")
     return 0;
   
-  // if(outFilename=="\0") {
-  //   outFilename = inFilename;
-  //   outFilename.ReplaceAll("|","");
-  //   outFilename.ReplaceAll(" ","_");
-  //   outFilename.ReplaceAll("raw/","");
+  if(outFileFolder=="\0") {
+    outFileFolder = inFilename;
+    outFileFolder.ReplaceAll("|","");
+    outFileFolder.ReplaceAll(" ","_");
+    outFileFolder.ReplaceAll("raw/","");
   
-  //   if(outFilename.Contains(".root"))
-  //     outFilename.ReplaceAll(".root","");    
-  // }
-  // outFilename = "output/"+outFilename;
-  // mkdir(outFilename.Data(),S_IRWXU|S_IRGRP|S_IROTH);
+    if(outFileFolder.Contains(".root"))
+      outFileFolder.ReplaceAll(".root","");    
+  }
+  outFileFolder = "output/"+outFileFolder;
+  mkdir(outFileFolder.Data(),S_IRWXU|S_IRGRP|S_IROTH);
+  mkdir(outFileFolder+"/event_select",S_IRWXU|S_IRGRP|S_IROTH);
 
-  // outFilename = outFilename+"/waveform_fft.root";
+  inFilename = outFileFolder+"/waveform_fft.root";
+  cout << "Processing " << inFilename.Data() << " ... " << endl;
+  outRootFilename = outFileFolder+"/waveform_sel.root";
 
   TFile *p_input_rootfile = TFile::Open(inFilename.Data());
-  if(p_input_rootfile==NULL) return 0;
 
   p_input_rootfile->ls();  
   
-  TTree* p_tree_waveform_fft;  
-  p_input_rootfile->GetObject("waveTH1_tree", p_tree_waveform_fft);
-  p_tree_waveform_fft->ls();
-  // // tree_attr->Print();
+  std::vector<int> chnls;
+  chnls.push_back(2);
+  chnls.push_back(3);
 
-  // std::vector<int> chnls;
-  // chnls.push_back(2);
-  // chnls.push_back(3);
-  // WaveAttr waveattr = WaveAttr(tree_attr,chnls);
-  
+  double chnl2_baseline = 0.121;  //Volt
+  double chnl3_baseline = 0.0;   //volt
+  std::vector<double> chnl_offsets;
+  chnl_offsets.push_back(chnl2_baseline);
+  chnl_offsets.push_back(chnl3_baseline);
 
-  // long draw_entry=0;
-  // TTree* tree_root;
-  // p_input_rootfile->GetObject("root", tree_root);
-  // tree_root->ls();
-  // tree_root->Print();
+  long draw_entry=100;
 
-  // TFile *p_output_rootfile = new TFile(outFilename.Data(), "RECREATE");
-  // if(p_output_rootfile==NULL) return 0;
-  // p_output_rootfile->cd();
+  vth_upper_base = -0.105;
 
-  // WaveData wavedata = WaveData(tree_root,&waveattr,chnls);
-  // wavedata.GetRawData(process_etry,draw_entry);
-  // wavedata.Lowpass_FFT(draw_entry,70);
-  // p_output_rootfile->Write();
+  TFile *p_output_rootfile = new TFile(outRootFilename.Data(), "RECREATE");
+  if(p_output_rootfile==NULL) return 0;
+  p_output_rootfile->cd();  //TFile should be created before TTree
 
-  
+  WaveFilter wavefilter = WaveFilter(p_input_rootfile, chnls, outFileFolder);
+  // tree_root->SetAutoFlush(1000);
 
-  return 0;
+  std::cout<<"Event filter started"<<std::endl;
+
+  wavefilter.filter_by_amplitude(process_entry,draw_entry,0, chnl_offsets,0.04,vth_upper_base);
+  p_output_rootfile->Write();
+
+  std::cout<<"Event filter finished successfully"<<std::endl;
+
+  return 1;
 
 }
 

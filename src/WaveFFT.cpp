@@ -6,16 +6,13 @@ WaveFFT::WaveFFT(TFile* p_input_rootfile, std::vector<int> chnls, TString outFil
   p_input_rootfile->GetObject("waveTH1_tree", tree);
   tree->ls();
   tree->Print();
-  tree->SetAutoFlush(1000);
   for (auto chnl : chnls){
     TBranch *pb = tree->
       GetBranch(("waveTH1_channel"+std::to_string(chnl)).c_str());
     pb_TH1s.push_back(pb);    
   }
-  // p_input_rootfile->GetObject("waveform", p_wave_template);
   p_wave_template =(TH1D*)p_input_rootfile->Get("waveform");
   wave_back_tree = new TTree("wave_back_tree","wave_back_tree");
-  wave_back_tree->SetAutoFlush(1000);
   outFolder = outFileFolder;  
 }
 
@@ -24,13 +21,6 @@ void WaveFFT::Lowpass_FFT(long entries, long draw_entries, int lowpass_freq){
   TH1D* p_waveform = (TH1D*)p_wave_template->Clone();
   TH1D* p_waveform_back = (TH1D*)p_wave_template->Clone();
   int n_points = p_waveform->GetNbinsX();
-  // std::cout<<"n_points="<<n_points<<std::endl;
-
-  // new TH1D("waveform", "waveform", 
-  //   WaveAttr::n_points,WaveAttr::time_range_left*1e9,WaveAttr::time_range_right*1e9);
-
-  // p_waveform_back->GetXaxis()->SetTitle("Time (ns)");
-  // p_waveform_back->GetYaxis()->SetTitle("Voltage (V)");
 
   TH1 *hm = nullptr;
   TVirtualFFT::SetTransform(nullptr);
@@ -95,7 +85,6 @@ void WaveFFT::Lowpass_FFT(long entries, long draw_entries, int lowpass_freq){
 
       TH1::TransformHisto(fft_back,p_waveform_back,"Re");
       p_waveform_back->Scale(1.0/n_points);
-      pb_TH1s_back.at(vindex)->Fill();
 
       if(j<draw_entries){
         p_waveform_back->Draw("HIST");

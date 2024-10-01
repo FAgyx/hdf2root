@@ -14,11 +14,8 @@
 #include "TF1.h"
 #include "TMath.h"
 
-#include "inc/WaveData.h"
+#include "inc/methods.h"
 
-// #include "stdlib.h"
-// #include "stdio.h"
-// #include "string.h"
 
 class WaveFFT {
 public:

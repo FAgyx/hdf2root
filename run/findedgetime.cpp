@@ -1,9 +1,9 @@
-#include "inc/doFFT.h"
+#include "inc/eventfilter.h"
 #include "AtlasStyle/AtlasStyle.h"
 #include "AtlasStyle/AtlasStyle.C"
 
-void doFFT_help() {
-  printf("\n Usage: doFFT [--help, -h] <inFile.root> [-e] <entries>\n");
+void findedgetime_help() {
+  printf("\n Usage: eventfilter [--help, -h] <inFile.root>\n");
   printf("\n  %15s  %s ","--help, -h","Shows this message.");
   printf("\n\n");
 }
@@ -11,7 +11,7 @@ void doFFT_help() {
 int main (int argc,char *argv[]) {
   SetAtlasStyle();
   if(argc<=1) {
-    doFFT_help();
+    findedgetime_help();
     return 0;
   }
 
@@ -20,18 +20,21 @@ int main (int argc,char *argv[]) {
   TString outRootFilename = "\0";
 
   long process_entry=0;  //0 means all data
+  double vth_upper_base = 0;
 
 
   for(int l=1;l<argc;l++){
     TString arg = argv[l];
    
     if(arg.Contains("--help") || arg.Contains("-h")) {
-      doFFT_help();
+      findedgetime_help();
       return 0;
     } else if(arg.EndsWith(".root")) {
       inFilename = arg;
     } else if(arg.Contains("-e")) {
       process_entry = std::stol(argv[l+1]);
+    } else if(arg.Contains("-b")) {
+      vth_upper_base = std::stod(argv[l+1]);
     }
   }
   
@@ -50,9 +53,10 @@ int main (int argc,char *argv[]) {
   outFileFolder = "output/"+outFileFolder;
   mkdir(outFileFolder.Data(),S_IRWXU|S_IRGRP|S_IROTH);
 
-  inFilename = outFileFolder+"/waveform.root";
+
+  inFilename = outFileFolder+"/waveform_sel.root";
   cout << "Processing " << inFilename.Data() << " ... " << endl;
-  outRootFilename = outFileFolder+"/waveform_fft.root";
+  outRootFilename = outFileFolder+"/waveform_result.root";
 
   TFile *p_input_rootfile = TFile::Open(inFilename.Data());
 
@@ -60,24 +64,27 @@ int main (int argc,char *argv[]) {
   
   std::vector<int> chnls;
   chnls.push_back(2);
-  chnls.push_back(3);
-  long draw_entry=0;
+  // chnls.push_back(3);
 
-  
+  std::vector<double> vths;
+  chnls.push_back(2);
+
+
+
 
   TFile *p_output_rootfile = new TFile(outRootFilename.Data(), "RECREATE");
   if(p_output_rootfile==NULL) return 0;
   p_output_rootfile->cd();  //TFile should be created before TTree
 
-  WaveFFT wavefft = WaveFFT(p_input_rootfile, chnls, outFileFolder);
+  WaveEdgeTime waveedgetime = WaveEdgeTime(p_input_rootfile, chnls, outFileFolder);
   // tree_root->SetAutoFlush(1000);
 
-  std::cout<<"FFT started"<<std::endl;
+  std::cout<<"Event find first edge started"<<std::endl;
 
-  wavefft.Lowpass_FFT(process_entry,draw_entry,70);
+  waveedgetime.find_first_edge_time(process_entry,draw_entry,0, chnl_offsets,0.04,vth_upper_base);
   p_output_rootfile->Write();
 
-  std::cout<<"doFFT finished successfully"<<std::endl;
+  std::cout<<"Event find first edge started"<<std::endl;
 
   return 1;
 

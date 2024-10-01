@@ -13,6 +13,8 @@
 #include "inc/WaveData.h"
 #include "inc/WaveFFT.h"
 #include "inc/WaveFilter.h"
+#include "inc/WaveEdgeTime.h"
+#include "inc/methods.h"
 #include "AtlasStyle/AtlasStyle.h"
 
 // #pragma link C++ class MuonReco::RecoObject+;
