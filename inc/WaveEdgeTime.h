@@ -2,8 +2,6 @@
 #define WAVEEDGETIME
 
 #include <iostream>
-#include <chrono>
-#include <ctime> 
 
 #include "TTree.h"
 #include "TH1.h"
@@ -18,7 +16,7 @@
 class WaveEdgeTime {
 public:
   WaveEdgeTime(TFile* p_input_rootfile, std::vector<int> chnls, TString outFileFolder);
-  find_first_edge_time(long entries, std::vector<double> vths);
+  void find_first_edge_time(long entries, std::vector<double> vths);
   std::vector<TBranch*> pb_TH1s_in;
   std::vector<TBranch*> pb_result_out;
   std::vector<TH1D*> p_wave;

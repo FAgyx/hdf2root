@@ -20,7 +20,7 @@ int main (int argc,char *argv[]) {
   TString outRootFilename = "\0";
 
   long process_entry=0;  //0 means all data
-  long draw_entry=100;   //0 means no draw
+  long draw_entry=0;   //0 means no draw
   double vth_base = 0;
 
 

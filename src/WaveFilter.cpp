@@ -13,6 +13,7 @@ WaveFilter::WaveFilter(TFile* p_input_rootfile, std::vector<int> chnls, TString 
   }
   wave_tree_out = new TTree("wave_sel_tree","wave_sel_tree");
   p_wave_template =(TH1D*)p_input_rootfile->Get("waveform");
+  
   outFolder = outFileFolder;  
 }
 
@@ -42,6 +43,7 @@ void WaveFilter::filter_by_amplitude(long entries, long draw_entries, int filter
 
   TCanvas *p_output_canvas = new TCanvas("waveform", "waveform");
   p_output_canvas->SetRightMargin(0.1);
+  p_wave_template->Write();
 
   for (long j = 0; j < entries; ++j){  //loop by events
 

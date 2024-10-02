@@ -1,4 +1,4 @@
-#include "inc/eventfilter.h"
+#include "inc/findedgetime.h"
 #include "AtlasStyle/AtlasStyle.h"
 #include "AtlasStyle/AtlasStyle.C"
 
@@ -67,7 +67,7 @@ int main (int argc,char *argv[]) {
   // chnls.push_back(3);
 
   std::vector<double> vths;
-  chnls.push_back(2);
+  vths.push_back(0.04);
 
 
 
@@ -81,10 +81,10 @@ int main (int argc,char *argv[]) {
 
   std::cout<<"Event find first edge started"<<std::endl;
 
-  waveedgetime.find_first_edge_time(process_entry,draw_entry,0, chnl_offsets,0.04,vth_upper_base);
+  waveedgetime.find_first_edge_time(process_entry, vths);
   p_output_rootfile->Write();
 
-  std::cout<<"Event find first edge started"<<std::endl;
+  std::cout<<"Find first edge completed successfully"<<std::endl;
 
   return 1;
 
