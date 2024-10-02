@@ -30,7 +30,7 @@ void WaveEdgeTime::find_first_edge_time(long entries,
 
   TH1D* p_waveform;
   std::vector<double> edge_times;
-  double edge_time;
+  Double_t edge_time;
   int total_bins;
   total_bins = p_wave_template->GetXaxis()->GetNbins();
   for (int i = 0; i < chnl_number; ++i){
@@ -43,7 +43,7 @@ void WaveEdgeTime::find_first_edge_time(long entries,
     pb_TH1s_in.at(i)->SetAddress(&(p_wave.at(i)));//link p_waveform to input branch
     pb_result_out.push_back(wave_tree_out->Branch(("chnl"+std::to_string(_chnls.at(i))+
       "_firstedgetime").c_str(), 
-      "double",&(edge_times.at(i))));  //create output branch and link same p_waveform to output branch
+      &(edge_times.at(i))));  //create output branch and link same p_waveform to output branch
   }
   std::cout<<"2"<<std::endl;
   
