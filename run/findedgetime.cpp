@@ -81,7 +81,7 @@ int main (int argc,char *argv[]) {
 
   std::cout<<"Event find first edge started"<<std::endl;
 
-  waveedgetime.find_first_edge_time(process_entry, vths);
+  waveedgetime.find_result(process_entry, vths);
   p_output_rootfile->Write();
 
   std::cout<<"Find first edge completed successfully"<<std::endl;

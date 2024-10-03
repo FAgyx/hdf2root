@@ -11,7 +11,6 @@ WaveEdgeTime::WaveEdgeTime(TFile* p_input_rootfile, std::vector<int> chnls,
     _chnls.push_back(chnl);
     TBranch *pb = wave_tree_in->
       GetBranch(("waveTH1_channel"+std::to_string(chnl)+"_back_sel").c_str());
-    pb->Print();
     pb_TH1s_in.push_back(pb);    
   }
   wave_tree_out = new TTree("wave_result_tree","wave_result_tree");
@@ -20,7 +19,7 @@ WaveEdgeTime::WaveEdgeTime(TFile* p_input_rootfile, std::vector<int> chnls,
 }
 
 
-void WaveEdgeTime::find_first_edge_time(long entries, 
+void WaveEdgeTime::find_result(long entries, 
   std::vector<double> vths){
 
   
@@ -29,41 +28,58 @@ void WaveEdgeTime::find_first_edge_time(long entries,
     entries=pb_TH1s_in.at(0)->GetEntries(); 
 
   TH1D* p_waveform;
+  double edge_time;
   std::vector<double> edge_times;
-  Double_t edge_time;
+  double integral;
+  std::vector<double> integrals;
+
+  
   int total_bins;
   total_bins = p_wave_template->GetXaxis()->GetNbins();
   for (int i = 0; i < chnl_number; ++i){
     p_waveform = (TH1D*)p_wave_template->Clone();
     p_wave.push_back(p_waveform); 
     edge_times.push_back(edge_time);
+    integrals.push_back(integral);
   }
-  std::cout<<"1"<<std::endl;
   for (int i = 0; i < chnl_number; ++i){    
     pb_TH1s_in.at(i)->SetAddress(&(p_wave.at(i)));//link p_waveform to input branch
     pb_result_out.push_back(wave_tree_out->Branch(("chnl"+std::to_string(_chnls.at(i))+
       "_firstedgetime").c_str(), 
-      &(edge_times.at(i))));  //create output branch and link same p_waveform to output branch
+      &(edge_times.at(i))));  
+    pb_result_out.push_back(wave_tree_out->Branch(("chnl"+std::to_string(_chnls.at(i))+
+      "_integral").c_str(), 
+      &(integrals.at(i)))); 
+
   }
-  std::cout<<"2"<<std::endl;
   
   for (long j = 0; j < entries; ++j){  //loop by events
     wave_tree_in->GetEntry(j); 
     for (int i = 0; i < chnl_number; ++i){ 
-      edge_times.at(i) = -999;
-      for(int k = 5; k <total_bins;++k){
-        if((p_wave.at(i)->GetBinContent(k-4)>vths.at(i))
-          &&(p_wave.at(i)->GetBinContent(k-3)>vths.at(i))
-          &&(p_wave.at(i)->GetBinContent(k-2)>vths.at(i))
-          &&(p_wave.at(i)->GetBinContent(k-1)>vths.at(i)))
-        {
-          edge_times.at(i) = p_wave.at(i)->GetXaxis()->GetBinCenter(k-4);
-          break;
-        }     
-      } //for k <total_bins
+      edge_times.at(i) = find_first_edge_time(p_wave.at(i),vths.at(i));
+      integrals.at(i) = p_wave.at(i)->GetSumOfWeights();
+      
     } //for i < chnl_number
     wave_tree_out->Fill();
   } //for j < entries
 
 
 }
+
+double WaveEdgeTime::find_first_edge_time(TH1D* p_waveform, double vth){
+  int total_bins = p_waveform->GetXaxis()->GetNbins();
+  double edge_time=-999;
+  for(int k = 5; k <total_bins;++k){
+    if((p_waveform->GetBinContent(k-4)>vth)
+      &&(p_waveform->GetBinContent(k-3)>vth)
+      &&(p_waveform->GetBinContent(k-2)>vth)
+      &&(p_waveform->GetBinContent(k-1)>vth))
+    {
+      edge_time = p_waveform->GetXaxis()->GetBinCenter(k-4);
+      break;
+    }     
+  } //for k <total_bins
+  return edge_time;
+}
+
+// double WaveEdgeTime::find_first_edge_time(TH1D* p_waveform, double vth){

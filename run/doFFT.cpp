@@ -53,12 +53,12 @@ int main (int argc,char *argv[]) {
   outFileFolder = "output/"+outFileFolder;
   mkdir(outFileFolder.Data(),S_IRWXU|S_IRGRP|S_IROTH);
   mkdir(outFileFolder+"/event_fft",S_IRWXU|S_IRGRP|S_IROTH);
+  mkdir(outFileFolder+"/event_sel",S_IRWXU|S_IRGRP|S_IROTH);
 
   inFilename = outFileFolder+"/waveform.root";
   cout << "Processing " << inFilename.Data() << " ... " << endl;
   outRootFilename = outFileFolder+"/waveform_fft.root";
 
-  outFileFolder = outFileFolder + "/event_fft";
 
   TFile *p_input_rootfile = TFile::Open(inFilename.Data());
 
@@ -69,12 +69,14 @@ int main (int argc,char *argv[]) {
   chnls.push_back(3);
 
   double chnl2_baseline = -0.121;  //Volt
+  // double chnl2_baseline = 0.0;  //Volt
   double chnl3_baseline = 0.0;   //volt
   std::vector<double> chnl_offsets;
   chnl_offsets.push_back(chnl2_baseline);
   chnl_offsets.push_back(chnl3_baseline);
 
-  double freq_cut = 70; //in MHz
+  double freq_cut = 70e6; //in Hz
+  double sampling_rate = 2.5e9; //in Hz
   
 
   
@@ -88,7 +90,7 @@ int main (int argc,char *argv[]) {
 
   std::cout<<"FFT started"<<std::endl;
 
-  wavefft.Lowpass_FFT(process_entry,draw_entry,freq_cut,chnl_offsets);
+  wavefft.Lowpass_FFT_filter(process_entry,draw_entry,sampling_rate,freq_cut,chnl_offsets,0);
   p_output_rootfile->Write();
 
   std::cout<<"doFFT finished successfully"<<std::endl;
