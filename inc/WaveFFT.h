@@ -31,7 +31,7 @@ public:
   std::vector<TBranch*> pb_TH1s_back;
   TH1D* p_wave_template;
   TString outFolder;
-  TTree* wave_in_tree;
+  TTree* wave_tree_in;
   TTree* wave_back_tree; 
   
 private:

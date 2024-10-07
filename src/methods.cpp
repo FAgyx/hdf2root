@@ -39,3 +39,39 @@ int getValuePM(){ //Note: this value is in KB!
   fclose(file);
   return result/1024;
 }
+
+void printMemoryUsage(long entry, long event_print){
+  std::time_t current_time_date = std::chrono::system_clock::to_time_t(
+  std::chrono::system_clock::now());
+  auto gmt_time = gmtime(&current_time_date);
+  auto timestamp = std::put_time(gmt_time, "%Y-%m-%d %H:%M:%S");
+  std::cout << "Processing event " << entry <<" at "<<
+  timestamp<<", VM="<<getValueVM()<<" MB, PM="<<getValuePM()<<" MB"<<std::endl;
+}
+
+
+TTree * getTreeFromRoot(TFile* rootfile){
+  TTree *tree;
+  TIter next(rootfile->GetListOfKeys());
+  TKey *key;
+  while ((key = (TKey*)next())) {  //loop to find a TTree
+    if (strstr(key->GetClassName(),"TTree")) {
+      rootfile->GetObject(key->GetName(), tree);
+      break;
+    }
+  }
+  tree->ls();
+  tree->Print();
+  return tree;
+}
+
+std::vector<TBranch*> getAllBranchFromTree(TTree* tree){
+  TBranch *pb;
+  std::vector<TBranch*> pbs;
+  TIter next_pb(tree->GetListOfBranches());
+  while ((pb = (TBranch*)next_pb())) {  //push all branches to pbs
+      pbs.push_back(pb);
+  }
+  return pbs;
+}
+

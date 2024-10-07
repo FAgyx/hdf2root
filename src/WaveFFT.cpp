@@ -2,23 +2,18 @@
 
 
 WaveFFT::WaveFFT(TFile* p_input_rootfile, std::vector<int> chnls, TString outFileFolder){
-  TIter next(p_input_rootfile->GetListOfKeys());
-  TKey *key;
-  while ((key = (TKey*)next())) {  //loop to find a TTree
-    if (strstr(key->GetClassName(),"TTree")) {
-      p_input_rootfile->GetObject(key->GetName(), wave_in_tree);
-      break;
-    }
+  wave_tree_in==nullptr;
+  wave_tree_in=getTreeFromRoot(p_input_rootfile);
+  if(wave_tree_in==nullptr){
+    std::cout<<"No TTree found."<<std::endl;
+    exit(0);
   }
-  wave_in_tree->ls();
-  wave_in_tree->Print();
-
-  TBranch *pb;
-  TIter next_pb(wave_in_tree->GetListOfBranches());
-  while ((pb = (TBranch*)next_pb())) {  //push all branches to pb_TH1s
-      pb_TH1s.push_back(pb);
+  pb_TH1s=getAllBranchFromTree(wave_tree_in);
+  std::cout<<pb_TH1s.size()<<" branch(es) loaded."<<std::endl;
+  if(pb_TH1s.size()==0){
+    std::cout<<"No TBranch found."<<std::endl;
+    exit(0);
   }
-
   p_wave_template =(TH1D*)p_input_rootfile->Get("waveform");
   p_wave_template->Write();
   wave_back_tree = new TTree("wave_back_tree","wave_back_tree");
@@ -81,7 +76,7 @@ void WaveFFT::Lowpass_FFT_filter(long entries, long draw_entries, double samplin
         timestamp<<", VM="<<getValueVM()<<" MB, PM="<<getValuePM()<<" MB"<<std::endl;
       if (TMath::Floor(TMath::Log10(j)) > TMath::Floor(TMath::Log10(event_print))) event_print*=10;
     }
-    wave_in_tree->GetEntry(j);  //load entry for all branches
+    wave_tree_in->GetEntry(j);  //load entry for all branches
     int fill = 0;
 
     for (int i = 0; i < chnl_number; ++i){
@@ -148,6 +143,14 @@ bool WaveFFT::FFT_filtering(TH1D* p_waveform_in, TH1D* p_waveform_out, TH1D* p_w
 
 
   if(entry<draw_entries){
+
+    p_output_canvas->cd();
+    p_waveform_in->Draw("HIST");
+    p_output_canvas->SetLogy(0);
+    p_output_canvas->SaveAs((outFolder+"/event_fft/event"+std::to_string(entry)+"_"+
+      channel_name+".png"));
+
+
     p_output_canvas->cd();
     p_output_canvas->SetLogy();
     
@@ -201,5 +204,5 @@ bool WaveFFT::FFT_filtering(TH1D* p_waveform_in, TH1D* p_waveform_out, TH1D* p_w
   delete re_full;
   delete im_full;
   delete p_output_canvas;
-  return (freq_below_10M>0.2)&&(freq_below_20M>0.3);
+  return (freq_below_10M>0.4)&&(freq_below_20M>0.6);
 }

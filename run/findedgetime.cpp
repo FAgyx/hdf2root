@@ -20,7 +20,7 @@ int main (int argc,char *argv[]) {
   TString outRootFilename = "\0";
 
   long process_entry=0;  //0 means all data
-  double vth_upper_base = 0;
+  double vth = 0;
 
 
   for(int l=1;l<argc;l++){
@@ -33,8 +33,8 @@ int main (int argc,char *argv[]) {
       inFilename = arg;
     } else if(arg.Contains("-e")) {
       process_entry = std::stol(argv[l+1]);
-    } else if(arg.Contains("-b")) {
-      vth_upper_base = std::stod(argv[l+1]);
+    } else if(arg.Contains("-v")) {
+      vth = std::stod(argv[l+1]);
     }
   }
   
@@ -54,7 +54,10 @@ int main (int argc,char *argv[]) {
   mkdir(outFileFolder.Data(),S_IRWXU|S_IRGRP|S_IROTH);
 
 
-  inFilename = outFileFolder+"/waveform_sel.root";
+  mkdir(outFileFolder+"/result",S_IRWXU|S_IRGRP|S_IROTH);
+
+
+  inFilename = outFileFolder+"/waveform_fft.root";
   cout << "Processing " << inFilename.Data() << " ... " << endl;
   outRootFilename = outFileFolder+"/waveform_result.root";
 
@@ -67,7 +70,7 @@ int main (int argc,char *argv[]) {
   // chnls.push_back(3);
 
   std::vector<double> vths;
-  vths.push_back(0.04);
+  vths.push_back(vth);
 
 
 
