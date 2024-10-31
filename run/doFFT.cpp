@@ -3,7 +3,7 @@
 #include "AtlasStyle/AtlasStyle.C"
 
 void doFFT_help() {
-  printf("\n Usage: doFFT [--help, -h] <inFile.root> [-e] <entries> [-d] <draw entries>\n");
+  printf("\n Usage: doFFT [--help, -h] <inFile.root> [-e] <entries> [-d] <draw entries> [-f] <low pass freq cut>\n");
   printf("\n  %15s  %s ","--help, -h","Shows this message.");
   printf("\n\n");
 }
@@ -21,7 +21,7 @@ int main (int argc,char *argv[]) {
 
   long process_entry=0;  //0 means all data
   long draw_entry=0;     //0 means no draw
-
+  double freq_cut = 70e6; //in Hz
 
   for(int l=1;l<argc;l++){
     TString arg = argv[l];
@@ -35,6 +35,8 @@ int main (int argc,char *argv[]) {
       process_entry = std::stol(argv[l+1]);
     } else if(arg.Contains("-d")) {
       draw_entry = std::stol(argv[l+1]);
+    } else if(arg.Contains("-f")) {
+      freq_cut = std::stod(argv[l+1]);
     }
   }
   
@@ -75,7 +77,7 @@ int main (int argc,char *argv[]) {
   chnl_offsets.push_back(chnl2_baseline);
   chnl_offsets.push_back(chnl3_baseline);
 
-  double freq_cut = 70e6; //in Hz
+  
   double sampling_rate = 2.5e9; //in Hz
   
 

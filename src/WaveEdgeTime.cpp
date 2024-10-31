@@ -47,6 +47,10 @@ void WaveEdgeTime::find_result(long entries,
   TCanvas *p_output_canvas = new TCanvas("waveform", "waveform");
   p_output_canvas->SetRightMargin(0.1);
 
+  // TVectorD fitData = TVectorD(NT0FITDATA);
+
+  
+
   for (int i = 0; i < chnl_number; ++i){
     p_waveform = (TH1D*)p_wave_template->Clone();
     p_wave.push_back(p_waveform); 
@@ -105,37 +109,62 @@ void WaveEdgeTime::find_result(long entries,
     wave_tree_out->Fill();
   } //for j < entries
 
+  T0Fit *t0fit = new T0Fit("TestData","Test Data");
 
   for (int i = 0; i < chnl_number; ++i){ 
     p_output_canvas->cd();
-    firstEdgeTime.at(i)->GetXaxis()->SetRangeUser(-200,600);
+    // firstEdgeTime.at(i)->GetXaxis()->SetRangeUser(-200,600);
     firstEdgeTime.at(i)->Draw();
     p_output_canvas->SaveAs((outFolder+"/channel"+
       std::to_string(_chnls.at(i))+"_drifttime.png"));
+
+    p_output_canvas->cd();
+    firstEdgeTime.at(i)->Draw();
+    t0fit->TdcFit(firstEdgeTime.at(i),0,1);
+    p_output_canvas->SaveAs((outFolder+"/channel"+
+      std::to_string(_chnls.at(i))+"_drifttime_fit.png"));
+    fitted_t0s.push_back(t0fit->FitData[1]);
+
     
     p_output_canvas->cd();
-    firstEdgeTime_integration.at(i)->GetXaxis()->SetRangeUser(-200,600);
+    // firstEdgeTime_integration.at(i)->GetXaxis()->SetRangeUser(-200,600);
     firstEdgeTime_integration.at(i)->Draw();
     p_output_canvas->SaveAs((outFolder+"/channel"+
       std::to_string(_chnls.at(i))+"_intvsdrift.png"));
 
-    
-    for (int binX = 1; binX <= firstEdgeTime_integration.at(i)->GetNbinsX(); ++binX) {
-      TH1D* p_tmp = new TH1D("histTmp", "TH1D;Integration", 100, -100, 1000);
-      for (int binY = 1; binY <= firstEdgeTime_integration.at(i)->GetNbinsY(); ++binY) {
-        Double_t count = firstEdgeTime_integration.at(i)->GetBinContent(binX, binY);  // Get count from original
-        p_tmp->AddBinContent(binY, count);
-      }
-      p_output_canvas->cd();
-      p_tmp->Draw();
-      p_output_canvas->SaveAs((outFolder+"/result/channel"+
-        std::to_string(_chnls.at(i))+"_"+
-        std::to_string(firstEdgeTime_integration.at(i)->GetXaxis()->GetBinCenter(binX))+
-        ".png"));
-      delete p_tmp;
+    // gStyle->SetOptStat(1111);
+    // for (int binX = 1; binX <= firstEdgeTime_integration.at(i)->GetNbinsX(); ++binX) {
+    //   TH1D* p_tmp = new TH1D("histTmp", "TH1D;Integration", 
+    //     firstEdgeTime_integration.at(i)->GetNbinsY(), 
+    //     firstEdgeTime_integration.at(i)->GetYaxis()->GetXmin(),
+    //     firstEdgeTime_integration.at(i)->GetYaxis()->GetXmax());
+    //   for (int binY = 1; binY <= firstEdgeTime_integration.at(i)->GetNbinsY(); ++binY) {
+    //     Double_t count = firstEdgeTime_integration.at(i)->GetBinContent(binX, binY);  // Get count from original
+    //     p_tmp->AddBinContent(binY, count);
+    //   }
+    //   p_output_canvas->cd();
+    //   p_tmp->ResetStats();
+    //   p_tmp->Draw();
+    //   TPaveStats *stats = (TPaveStats*)p_tmp->GetListOfFunctions()->FindObject("stats");
+    //   if (stats) {
+    //     // Set the position and size of the stats box (NDC coordinates between 0 and 1)
+    //     stats->SetX1NDC(0.7);  // X1 (left border)
+    //     stats->SetX2NDC(0.9);  // X2 (right border)
+    //     stats->SetY1NDC(0.7);  // Y1 (bottom border)
+    //     stats->SetY2NDC(0.9);  // Y2 (top border)
+    //     // Update the canvas to reflect the new size
+    //     p_output_canvas->Modified();
+    //     p_output_canvas->Update();
+    // }
+
+    //   p_output_canvas->SaveAs((outFolder+"/result/channel"+
+    //     std::to_string(_chnls.at(i))+"_"+
+    //     std::to_string(firstEdgeTime_integration.at(i)->GetXaxis()->GetBinCenter(binX))+
+    //     ".png"));
+    //   delete p_tmp;
 
 
-    }
+    // }
     
   } //for i < chnl_number
   

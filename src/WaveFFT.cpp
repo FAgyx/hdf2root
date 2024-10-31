@@ -18,6 +18,7 @@ WaveFFT::WaveFFT(TFile* p_input_rootfile, std::vector<int> chnls, TString outFil
   p_wave_template->Write();
   wave_back_tree = new TTree("wave_back_tree","wave_back_tree");
   outFolder = outFileFolder;  
+  draw_count = 0;
 }
 
 
@@ -26,7 +27,6 @@ void WaveFFT::Lowpass_FFT_filter(long entries, long draw_entries, double samplin
 
   int chnl_number = pb_TH1s.size();
   int n_points = p_wave_template->GetXaxis()->GetNbins();
-  int draw_count = 0;
   TCanvas *p_output_canvas = new TCanvas("waveform", "waveform");
   p_output_canvas->SetRightMargin(0.1);
 
@@ -68,12 +68,7 @@ void WaveFFT::Lowpass_FFT_filter(long entries, long draw_entries, double samplin
 
   for (long j = 0; j < entries; ++j){  //loop by events
     if (j % event_print == 0) {
-      std::time_t current_time_date = std::chrono::system_clock::to_time_t(
-        std::chrono::system_clock::now());
-      auto gmt_time = gmtime(&current_time_date);
-      auto timestamp = std::put_time(gmt_time, "%Y-%m-%d %H:%M:%S");
-      std::cout << "Do FFT for event " << j <<" at "<<
-        timestamp<<", VM="<<getValueVM()<<" MB, PM="<<getValuePM()<<" MB"<<std::endl;
+      printMemoryUsage(j,event_print);
       if (TMath::Floor(TMath::Log10(j)) > TMath::Floor(TMath::Log10(event_print))) event_print*=10;
     }
     wave_tree_in->GetEntry(j);  //load entry for all branches
@@ -91,16 +86,6 @@ void WaveFFT::Lowpass_FFT_filter(long entries, long draw_entries, double samplin
 
     if(fill){
       wave_back_tree->Fill(); 
-      if(draw_count<draw_entries){
-        for (int i = 0; i < chnl_number; ++i){
-          p_output_canvas->cd();
-          p_wave_back.at(i)->Draw("HIST");
-          p_output_canvas->SetLogy(0);
-          p_output_canvas->SaveAs((outFolder+"/event_sel/event"+std::to_string(j)+"_"+
-            pb_TH1s.at(i)->GetFullName()+"_fftback.png"));
-        }
-      }
-      ++draw_count;
     }
   }//loop by events
 }
@@ -132,6 +117,8 @@ bool WaveFFT::FFT_filtering(TH1D* p_waveform_in, TH1D* p_waveform_out, TH1D* p_w
   hm->SetBins(n_points,0,sampling_rate);
   hm->Scale(1.0/TMath::Sqrt(n_points));
   hm->GetXaxis()->SetRangeUser(0,1e9);
+  hm->GetXaxis()->SetTitle("Frequency (Hz)");
+  hm->GetYaxis()->SetTitle("Magnitude");
 
   for (int freq_index = 2; freq_index<=(int)(20e6/sampling_rate*n_points); 
     ++freq_index){   //freq_index=0 underflow freq_index=1 DC part (ignored here)
@@ -143,17 +130,7 @@ bool WaveFFT::FFT_filtering(TH1D* p_waveform_in, TH1D* p_waveform_out, TH1D* p_w
 
 
   if(entry<draw_entries){
-
-    p_output_canvas->cd();
-    p_waveform_in->Draw("HIST");
-    p_output_canvas->SetLogy(0);
-    p_output_canvas->SaveAs((outFolder+"/event_fft/event"+std::to_string(entry)+"_"+
-      channel_name+".png"));
-
-
-    p_output_canvas->cd();
     p_output_canvas->SetLogy();
-    
     hm->Draw("HIST");
     TPad *newpad=new TPad("newpad","a transparent pad",0,0,1,1);
     newpad->SetFillStyle(4000);
@@ -191,12 +168,67 @@ bool WaveFFT::FFT_filtering(TH1D* p_waveform_in, TH1D* p_waveform_out, TH1D* p_w
 
   if(entry<draw_entries){
     p_output_canvas->cd();
-    p_waveform_out->Draw("HIST");
     p_output_canvas->SetLogy(0);
-    p_output_canvas->SaveAs((outFolder+"/event_fft/event"+std::to_string(entry)+"_"+
-      channel_name+"_fftback.png"));
-  }
 
+    p_waveform_in->SetLineColor(kBlack);
+    p_waveform_in->Draw("HIST");    
+    p_output_canvas->SaveAs((outFolder+"/event_fft/event"+std::to_string(entry)+"_"+
+        channel_name+"_raw.png"));
+
+    p_waveform_out->SetLineColor(kBlack);
+    p_waveform_out->Draw("HIST");
+    p_output_canvas->SaveAs((outFolder+"/event_fft/event"+std::to_string(entry)+"_"+
+        channel_name+"_fftback.png"));
+
+    p_waveform_in->SetLineColor(kBlue);  // Set h1 line color to blue
+    p_waveform_out->SetLineColor(kRed);   // Set h2 line color to red
+    p_waveform_in->Draw("HIST");
+    p_waveform_out->Draw("HIST SAME");
+    TLegend* legend = new TLegend(0.7, 0.7, 0.9, 0.9);  // Position the legend
+    legend->AddEntry(p_waveform_in, "Raw", "l");  // "l" stands for line
+    legend->AddEntry(p_waveform_out, "Freq_cut", "l");
+    legend->SetFillStyle(0);  // No fill
+    legend->SetBorderSize(0); // No border
+    legend->Draw();
+    p_output_canvas->SaveAs((outFolder+"/event_fft/event"+std::to_string(entry)+"_"+
+        channel_name+"_fftandraw.png"));
+    
+    delete legend;
+  }
+  int fill_flag;
+  fill_flag = (freq_below_10M>0.4)&&(freq_below_20M>0.6);
+
+  if(fill_flag&&draw_count<draw_entries){
+    p_output_canvas->cd();
+    p_output_canvas->SetLogy(0);
+
+    p_waveform_in->SetLineColor(kBlack);
+    p_waveform_in->Draw("HIST");    
+    p_output_canvas->SaveAs((outFolder+"/event_sel/event"+std::to_string(entry)+"_"+
+        channel_name+"_raw.png"));
+
+    p_waveform_out->SetLineColor(kBlack);
+    p_waveform_out->Draw("HIST");
+    p_output_canvas->SaveAs((outFolder+"/event_sel/event"+std::to_string(entry)+"_"+
+        channel_name+"_fftback.png"));
+
+    p_waveform_in->SetLineColor(kBlue);  // Set h1 line color to blue
+    p_waveform_out->SetLineColor(kRed);   // Set h2 line color to red
+    p_waveform_in->Draw("HIST");
+    p_waveform_out->Draw("HIST SAME");
+    TLegend* legend = new TLegend(0.7, 0.7, 0.9, 0.9);  // Position the legend
+    legend->AddEntry(p_waveform_in, "Raw", "l");  // "l" stands for line
+    legend->AddEntry(p_waveform_out, "Freq_cut", "l");
+    legend->SetFillStyle(0);  // No fill
+    legend->SetBorderSize(0); // No border
+    legend->Draw();
+    p_output_canvas->SaveAs((outFolder+"/event_sel/event"+std::to_string(entry)+"_"+
+        channel_name+"_fftandraw.png"));
+    delete legend;
+    
+
+    ++draw_count;
+  }
 
   delete hm;
   delete fft;
@@ -204,5 +236,5 @@ bool WaveFFT::FFT_filtering(TH1D* p_waveform_in, TH1D* p_waveform_out, TH1D* p_w
   delete re_full;
   delete im_full;
   delete p_output_canvas;
-  return (freq_below_10M>0.4)&&(freq_below_20M>0.6);
+  return fill_flag;
 }

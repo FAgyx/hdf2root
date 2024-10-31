@@ -15,8 +15,10 @@
 #include "TF1.h"
 #include "TMath.h"
 #include "TAxis.h"
+#include "TPaveStats.h"
 
 #include "inc/methods.h"
+#include "inc/T0Fit.h"
 
 
 
@@ -32,6 +34,7 @@ public:
   std::vector<TBranch*> pb_result_out;
   std::vector<TH1D*> p_wave;
   std::vector<int> _chnls;
+  std::vector<double> fitted_t0s;
   TH1D* p_wave_template;
   TString outFolder;
   TTree* wave_tree_in; 

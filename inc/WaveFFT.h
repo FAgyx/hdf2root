@@ -16,6 +16,7 @@
 #include "TMath.h"
 #include "TPaveLabel.h"
 #include "TKey.h"
+#include "TLegend.h"
 
 #include "inc/methods.h"
 
@@ -33,6 +34,7 @@ public:
   TString outFolder;
   TTree* wave_tree_in;
   TTree* wave_back_tree; 
+  int draw_count;
   
 private:
   
