@@ -30,6 +30,7 @@ public:
   TString channel_name, double sampling_rate, double lowpass_freq, long entry, long draw_entries);
   std::vector<TBranch*> pb_TH1s;
   std::vector<TBranch*> pb_TH1s_back;
+  std::vector<TBranch*> pb_TH1s_raw;
   TH1D* p_wave_template;
   TString outFolder;
   TTree* wave_tree_in;

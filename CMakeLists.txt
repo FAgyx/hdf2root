@@ -59,8 +59,6 @@ target_link_libraries(rootdraw calvision ${ROOT_LIBRARIES} ${HDF5_LIBRARIES})
 add_executable(doFFT run/doFFT.cpp)
 target_link_libraries(doFFT calvision ${ROOT_LIBRARIES} ${HDF5_LIBRARIES})
 
-add_executable(eventfilter run/eventfilter.cpp)
-target_link_libraries(eventfilter calvision ${ROOT_LIBRARIES} ${HDF5_LIBRARIES})
 
 add_executable(findedgetime run/findedgetime.cpp)
 target_link_libraries(findedgetime calvision ${ROOT_LIBRARIES} ${HDF5_LIBRARIES})

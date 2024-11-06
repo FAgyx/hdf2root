@@ -12,7 +12,7 @@
 #include "inc/WaveAttr.h"
 #include "inc/WaveData.h"
 #include "inc/WaveFFT.h"
-#include "inc/WaveFilter.h"
+// #include "inc/WaveFilter.h"
 //#include "inc/WaveEdgeTime.h"
 #include "inc/methods.h"
 #include "AtlasStyle/AtlasStyle.h"

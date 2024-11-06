@@ -60,6 +60,8 @@ void WaveFFT::Lowpass_FFT_filter(long entries, long draw_entries, double samplin
     pb_TH1s.at(i)->SetAddress(&p_wave_in.at(i));
     pb_TH1s_back.push_back(wave_back_tree->Branch(pb_TH1s.at(i)->GetFullName()+"_back", 
       "TH1D",&p_wave_back.at(i)));
+    pb_TH1s_raw.push_back(wave_back_tree->Branch(pb_TH1s.at(i)->GetFullName()+"_raw", 
+      "TH1D",&p_wave_in.at(i)));
   }  
 
   if(entries==0||entries>pb_TH1s.at(0)->GetEntries())  
